@@ -12,7 +12,7 @@ RUN --mount=type=secret,id=proxy_ca,required=false,uid=1000,gid=1000,mode=0444 \
       cat /etc/ssl/certs/ca-certificates.crt /run/secrets/proxy_ca > /tmp/build-ca.crt; \
       export SSL_CERT_FILE=/tmp/build-ca.crt; \
     fi; \
-    curl -fsSL https://antigravity.google/cli/install.sh | bash; \
+    curl -fsSL --compressed https://antigravity.google/cli/install.sh | bash; \
     test -x /home/agent/.local/bin/agy; \
     rm -f /tmp/build-ca.crt
 

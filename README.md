@@ -82,7 +82,7 @@ To log out from inside the sandbox, run `/logout` at the `agy` prompt.
 
 ### Upgrading an existing sandbox from v1.0.0
 
-V1.0.1 removes the obsolete `unsandboxed(*)` permission that newer Antigravity
+V1.0.2 removes the obsolete `unsandboxed(*)` permission that newer Antigravity
 versions warn about. The kit deliberately preserves an existing settings file,
 so an already-created sandbox may retain that line. Remove it with
 `/permissions`, edit `~/.gemini/antigravity-cli/settings.json` inside the
@@ -136,9 +136,9 @@ Use any sandbox name as the first argument:
 Kits v3 build as ordinary OCI images through the sandbox-kit frontend:
 
 ```bash
-docker buildx build . -f agy.yaml -t agy-sbx-kit:1.0.1 --load
+docker buildx build . -f agy.yaml -t agy-sbx-kit:1.0.2 --load
 docker buildx build agy-mixin -f agy-mixin/agy-mixin.yaml \
-  -t agy-sbx-kit-mixin:1.0.1 --load
+  -t agy-sbx-kit-mixin:1.0.2 --load
 ```
 
 In a TLS-inspecting network, pass the organization's CA bundle as an ephemeral
@@ -149,21 +149,21 @@ resulting image.
 For conformance testing without publishing, export an OCI layout and run `kit-tck`:
 
 ```bash
-docker buildx build . -f agy.yaml -t agy-sbx-kit:1.0.1 \
+docker buildx build . -f agy.yaml -t agy-sbx-kit:1.0.2 \
   --output type=oci,dest=/tmp/agy-kit-layout,tar=false
-kit-tck validate --layout /tmp/agy-kit-layout 1.0.1
+kit-tck validate --layout /tmp/agy-kit-layout 1.0.2
 ```
 
 Publish workload and mixin as separate v3 artifacts; do not use the legacy `sbx kit push` packaging flow:
 
 ```bash
 docker buildx build . -f agy.yaml --platform linux/amd64,linux/arm64 \
-  -t docker.io/olegselajev241/agy-sbx-kit:1.0.1 \
+  -t docker.io/olegselajev241/agy-sbx-kit:1.0.2 \
   -t docker.io/olegselajev241/agy-sbx-kit:latest --push
 
 docker buildx build agy-mixin -f agy-mixin/agy-mixin.yaml \
   --platform linux/amd64,linux/arm64 \
-  -t docker.io/olegselajev241/agy-sbx-kit-mixin:1.0.1 \
+  -t docker.io/olegselajev241/agy-sbx-kit-mixin:1.0.2 \
   -t docker.io/olegselajev241/agy-sbx-kit-mixin:latest --push
 ```
 

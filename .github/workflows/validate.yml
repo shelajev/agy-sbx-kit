@@ -27,20 +27,26 @@ jobs:
 
       - name: Build workload OCI artifact
         run: |
-          docker buildx build . -f agy.yaml -t agy-sbx-kit:1.0.0 \
+          version=$(sed -n 's/^version: "\(.*\)"/\1/p' agy.yaml)
+          docker buildx build . -f agy.yaml -t "agy-sbx-kit:$version" \
             --output type=oci,dest=/tmp/agy-layout,tar=false
 
       - name: Validate workload conformance
-        run: kit-tck validate --layout /tmp/agy-layout 1.0.0
+        run: |
+          version=$(sed -n 's/^version: "\(.*\)"/\1/p' agy.yaml)
+          kit-tck validate --layout /tmp/agy-layout "$version"
 
       - name: Build mixin OCI artifact
         run: |
+          version=$(sed -n 's/^version: "\(.*\)"/\1/p' agy-mixin/agy-mixin.yaml)
           docker buildx build agy-mixin -f agy-mixin/agy-mixin.yaml \
-            -t agy-sbx-kit-mixin:1.0.0 \
+            -t "agy-sbx-kit-mixin:$version" \
             --output type=oci,dest=/tmp/agy-mixin-layout,tar=false
 
       - name: Validate mixin conformance
-        run: kit-tck validate --layout /tmp/agy-mixin-layout 1.0.0
+        run: |
+          version=$(sed -n 's/^version: "\(.*\)"/\1/p' agy-mixin/agy-mixin.yaml)
+          kit-tck validate --layout /tmp/agy-mixin-layout "$version"
 
       - name: Check wrapper syntax
         run: bash -n run.sh

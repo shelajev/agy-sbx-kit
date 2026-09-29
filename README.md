@@ -79,6 +79,16 @@ To log out from inside the sandbox, run `/logout` at the `agy` prompt.
 - **Lifecycle:** At sandbox creation, the kit seeds `~/.gemini/antigravity-cli/settings.json` with permissive tool, file, URL, MCP, and artifact-review settings. The file is created only when missing, so later user changes are preserved. The command-line flags are the per-session overrides.
 - **Authentication:** Docker Sandboxes intercepts the Google token exchange and writes proxy-managed sentinel credentials at Antigravity's expected token path. The host holds and refreshes the real tokens for reuse across sandboxes.
 - **Persistence:** Inherited from `sbx` defaults — conversations and other sandbox-local state survive restarts, while authentication is shared through the host credential proxy.
+
+### Upgrading an existing sandbox from v1.0.0
+
+V1.0.1 removes the obsolete `unsandboxed(*)` permission that newer Antigravity
+versions warn about. The kit deliberately preserves an existing settings file,
+so an already-created sandbox may retain that line. Remove it with
+`/permissions`, edit `~/.gemini/antigravity-cli/settings.json` inside the
+sandbox, or recreate the sandbox. `command(*)` already grants command
+execution; removing `unsandboxed(*)` does not reduce the kit's intended YOLO
+behavior.
 - **Self-update:** `agy` self-updates in the background; the updater domain is allowlisted.
 
 ## Security model
@@ -126,9 +136,9 @@ Use any sandbox name as the first argument:
 Kits v3 build as ordinary OCI images through the sandbox-kit frontend:
 
 ```bash
-docker buildx build . -f agy.yaml -t agy-sbx-kit:1.0.0 --load
+docker buildx build . -f agy.yaml -t agy-sbx-kit:1.0.1 --load
 docker buildx build agy-mixin -f agy-mixin/agy-mixin.yaml \
-  -t agy-sbx-kit-mixin:1.0.0 --load
+  -t agy-sbx-kit-mixin:1.0.1 --load
 ```
 
 In a TLS-inspecting network, pass the organization's CA bundle as an ephemeral
@@ -139,21 +149,21 @@ resulting image.
 For conformance testing without publishing, export an OCI layout and run `kit-tck`:
 
 ```bash
-docker buildx build . -f agy.yaml -t agy-sbx-kit:1.0.0 \
+docker buildx build . -f agy.yaml -t agy-sbx-kit:1.0.1 \
   --output type=oci,dest=/tmp/agy-kit-layout,tar=false
-kit-tck validate --layout /tmp/agy-kit-layout 1.0.0
+kit-tck validate --layout /tmp/agy-kit-layout 1.0.1
 ```
 
 Publish workload and mixin as separate v3 artifacts; do not use the legacy `sbx kit push` packaging flow:
 
 ```bash
 docker buildx build . -f agy.yaml --platform linux/amd64,linux/arm64 \
-  -t docker.io/olegselajev241/agy-sbx-kit:1.0.0 \
+  -t docker.io/olegselajev241/agy-sbx-kit:1.0.1 \
   -t docker.io/olegselajev241/agy-sbx-kit:latest --push
 
 docker buildx build agy-mixin -f agy-mixin/agy-mixin.yaml \
   --platform linux/amd64,linux/arm64 \
-  -t docker.io/olegselajev241/agy-sbx-kit-mixin:1.0.0 \
+  -t docker.io/olegselajev241/agy-sbx-kit-mixin:1.0.1 \
   -t docker.io/olegselajev241/agy-sbx-kit-mixin:latest --push
 ```
 

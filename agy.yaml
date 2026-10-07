@@ -9,9 +9,15 @@ description: >-
   Run Google's Antigravity CLI (agy) in YOLO mode inside a Docker Sandbox.
   First run prints a Google OAuth URL you complete in your local browser;
   credentials persist across sandbox restarts.
-version: "1.0.2"
+version: "1.1.0"
 sourceUrl: https://github.com/shelajev/agy-sbx-kit
 licenses: [Apache-2.0]
+
+args:
+  auth_method:
+    default: consumer
+    enum: [consumer, gcp]
+    description: Antigravity login mode; use gcp for Google Cloud / Gemini Enterprise
 
 # MIGRATION NOTE: agy installs from the vendor's floating channel and also
 # self-updates. The kit therefore makes no versioned `provides` claim that its
@@ -39,6 +45,8 @@ capabilities:
           - play.googleapis.com:443
           - www.googleapis.com:443
           # Antigravity / Gemini Code Assist model + agent APIs.
+          - businessaicode.googleapis.com:443
+          - aiplatform.googleapis.com:443
           - aicode.googleapis.com:443
           - cloudaicompanion.googleapis.com:443
           - cloudcode-pa.googleapis.com:443
@@ -58,6 +66,9 @@ capabilities:
           host: oauth2.googleapis.com
           path: /token
         resourceHosts:
+          - businessaicode.googleapis.com
+          - aiplatform.googleapis.com
+          - play.googleapis.com
           - aicode.googleapis.com
           - cloudaicompanion.googleapis.com
           - cloudcode-pa.googleapis.com
@@ -76,7 +87,7 @@ capabilities:
               token_type: Bearer
               refresh_token: "{{.RefreshToken}}"
               expiry: "9999-12-31T23:59:59Z"
-            auth_method: consumer
+            auth_method: "${{ kit.args.auth_method }}"
 
   - type: com.docker.sandbox/lifecycle@1
     config:

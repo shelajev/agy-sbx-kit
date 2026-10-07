@@ -1,6 +1,7 @@
 name: Validate Kits v3
 
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch:

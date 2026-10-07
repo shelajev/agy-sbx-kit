@@ -9,9 +9,15 @@ displayName: Antigravity CLI (agy) (mixin)
 description: >-
   Add Google's Antigravity CLI and its sandbox configuration to another v3
   workload, then run agy from that environment.
-version: "1.0.2"
+version: "1.1.0"
 sourceUrl: https://github.com/shelajev/agy-sbx-kit
 licenses: [Apache-2.0]
+
+args:
+  auth_method:
+    default: consumer
+    enum: [consumer, gcp]
+    description: Antigravity login mode; use gcp for Google Cloud / Gemini Enterprise
 
 # MIGRATION NOTE: the floating, self-updating vendor channel cannot support an
 # honest versioned `provides` claim.
@@ -30,6 +36,8 @@ capabilities:
           - oauth2.googleapis.com:443
           - play.googleapis.com:443
           - www.googleapis.com:443
+          - businessaicode.googleapis.com:443
+          - aiplatform.googleapis.com:443
           - aicode.googleapis.com:443
           - cloudaicompanion.googleapis.com:443
           - cloudcode-pa.googleapis.com:443
@@ -45,6 +53,9 @@ capabilities:
       oauth:
         tokenEndpoint: {host: oauth2.googleapis.com, path: /token}
         resourceHosts:
+          - businessaicode.googleapis.com
+          - aiplatform.googleapis.com
+          - play.googleapis.com
           - aicode.googleapis.com
           - cloudaicompanion.googleapis.com
           - cloudcode-pa.googleapis.com
@@ -62,7 +73,7 @@ capabilities:
               token_type: Bearer
               refresh_token: "{{.RefreshToken}}"
               expiry: "9999-12-31T23:59:59Z"
-            auth_method: consumer
+            auth_method: "${{ kit.args.auth_method }}"
 
   - type: com.docker.sandbox/lifecycle@1
     config:

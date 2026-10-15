@@ -57,6 +57,41 @@ sbx run <V3-WORKLOAD> \
 
 Kits v3 cannot be composed with v1 or v2 kits. The workload and every mixin in one sandbox must all use v3.
 
+## Reuse a Google Cloud login
+
+Google Cloud / Gemini Enterprise sign-in needs both the shared OAuth session
+and the project/region metadata. Create each GCP sandbox with the same arguments:
+
+```bash
+sbx run docker.io/olegselajev241/agy-sbx-kit:1.1.1 . --name agy-gcp-project \
+  --kit-arg auth_method=gcp \
+  --kit-arg gcp_project=YOUR_PROJECT_ID \
+  --kit-arg gcp_location=global
+```
+
+Kit 1.1.1 and later accept these project/location arguments. Personal Google
+OAuth remains the default and needs no project ID.
+
+The credential proxy reuses the host's `antigravity` OAuth session. No token
+export or copied login file is needed. The kit writes `auth_method`, `project_id`,
+and `region` alongside proxy placeholders in
+`~/.gemini/antigravity-cli/antigravity-oauth-token`. A GCP session with missing
+project/region can be treated as signed out even when OAuth tokens are available.
+
+The default `auth_method=consumer` selects the personal-account route. If a
+Google Cloud login is reused as a consumer session, the CLI can instead report
+`Client is not eligible for Gemini Code Assist for individuals` or
+`Client does not support Google TOS`. Repeating browser login does not preserve
+the missing project configuration for the next sandbox.
+
+Reattach with `sbx run --name agy-gcp-project`. Existing sandboxes retain their
+own credential metadata; changing kit arguments does not retrofit them. Confirm
+reuse without sending a model prompt:
+
+```bash
+sbx exec agy-gcp-project agy models
+```
+
 ## How auth works
 
 `agy`'s local auth path tries to open a browser and listen on `localhost:36742` for the OAuth callback — neither of which makes sense from inside a sandbox. The kit sets `SSH_CONNECTION` so `agy` detects a "remote" environment and switches to its copy/paste fallback:
